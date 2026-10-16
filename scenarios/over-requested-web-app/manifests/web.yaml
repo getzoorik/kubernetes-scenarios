@@ -42,10 +42,10 @@ spec:
               port: http
           resources:
             requests:
-              cpu: "2"
-              memory: 1Gi
+              cpu: "1"
+              memory: 512Mi
             limits:
-              memory: 1Gi
+              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service

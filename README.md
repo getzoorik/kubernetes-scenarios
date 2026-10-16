@@ -11,7 +11,7 @@ Use them to try an optimizer, an autoscaler or your own scripts against somethin
 | [autoscaled-gateway](scenarios/autoscaled-gateway) | Two replicas, a CPU autoscaler and a PodDisruptionBudget that allows one pod down | metrics-server |
 | [keda-queue-worker](scenarios/keda-queue-worker) | A worker that KEDA scales from zero to six on the length of a Redis list | KEDA |
 | [node-agent-daemonset](scenarios/node-agent-daemonset) | An agent on every node that must never be moved | Nothing |
-| [over-requested-web-app](scenarios/over-requested-web-app) | A web app that asks for 4 CPU across two pods and uses about 0.2 | Nothing |
+| [over-requested-web-app](scenarios/over-requested-web-app) | A web app that asks for 2 CPU across two pods and uses about 0.2 | Nothing |
 | [quorum-statefulset](scenarios/quorum-statefulset) | Three pods with a volume each, one down at a time | Nothing |
 | [recreate-strategy](scenarios/recreate-strategy) | A rollout that stops every pod before new ones start | Nothing |
 | [single-replica-database](scenarios/single-replica-database) | One Postgres pod with a ReadWriteOnce volume and no second copy | Nothing |

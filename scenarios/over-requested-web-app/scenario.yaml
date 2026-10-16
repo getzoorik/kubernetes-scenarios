@@ -1,11 +1,11 @@
 name: over-requested-web-app
-summary: A web app that asks for 4 CPU across two pods and uses about 0.2.
+summary: A web app that asks for 2 CPU across two pods and uses about 0.2.
 kubernetes: "1.19"
 exercises:
   - CPU and memory requests far above what the pods use
   - a steady, light load with no spikes
 expected:
-  - Lower each pod's CPU request to near its use (about 0.1 CPU) plus headroom, far below 2 CPU.
-  - Lower each pod's memory request to near its use plus headroom, far below 1 GiB.
+  - Lower each pod's CPU request to near its use (about 0.1 CPU) plus headroom, far below 1 CPU.
+  - Lower each pod's memory request to near its use plus headroom, far below 512 MiB.
   - Keep two replicas. Only the size of each pod is wrong.
   - Once the requests are small, both pods fit on one node, so a plan may free the other.
