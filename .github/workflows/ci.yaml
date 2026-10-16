@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate every scenario
+        run: scripts/validate.sh
+
+  apply:
+    needs: validate
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: helm/kind-action@06c1ae10762d3b9c1644e7fe69596ae519e015a2  # v1.15.0
+        with:
+          version: v0.33.0
+          config: kind/cluster.yaml
+          cluster_name: scenarios
+          wait: 120s
+      - name: Apply every scenario and wait for it to be Ready
+        run: |
+          for dir in scenarios/*/; do
+            name=$(basename "$dir")
+            echo "::group::$name"
+            scripts/run.sh "$name" kind-scenarios
+            kubectl --context kind-scenarios delete namespace "$name" --wait --timeout=180s
+            echo "::endgroup::"
+          done
