@@ -1,0 +1,12 @@
+name: node-agent-daemonset
+summary: A DaemonSet agent on every node, the control plane included.
+kubernetes: "1.19"
+exercises:
+  - one pod per node that belongs to that node
+  - a toleration for every taint
+  - a fixed cost on every node
+expected:
+  - Never evict or move its pods. Each one belongs to its node, and the DaemonSet puts it straight back.
+  - Leave its pod out when deciding whether a node is empty. A node running only DaemonSet pods can be removed.
+  - Count its request (50m CPU and 32 MiB) on every node, new nodes included, when working out how many nodes the cluster needs.
+  - All its pods share one request, so size it from the busiest node, not the average.

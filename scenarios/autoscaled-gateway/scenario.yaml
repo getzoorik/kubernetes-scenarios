@@ -1,0 +1,13 @@
+name: autoscaled-gateway
+summary: A gateway with two replicas, a CPU autoscaler and a PodDisruptionBudget that allows one pod down.
+kubernetes: "1.23"
+exercises:
+  - a HorizontalPodAutoscaler that owns the replica count
+  - an autoscaler target measured against the CPU request
+  - a PodDisruptionBudget with maxUnavailable 1
+expected:
+  - Leave the replica count to the HPA. Never change spec.replicas or the HPA's bounds.
+  - Size the CPU request knowing the HPA scales on use divided by request. A smaller request means higher utilisation and possibly more replicas.
+  - Move at most one gateway pod at a time, and wait until it is Ready before moving the next.
+  - Move pods through the eviction API so the PodDisruptionBudget is respected. Never delete pods directly to get round it.
+requires: [metrics-server]

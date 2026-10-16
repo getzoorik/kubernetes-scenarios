@@ -1,0 +1,12 @@
+name: single-replica-database
+summary: One Postgres pod with a ReadWriteOnce volume and no second copy.
+kubernetes: "1.19"
+exercises:
+  - a single replica with nothing else serving
+  - a ReadWriteOnce volume that ties the pod to one node (one zone on a cloud)
+  - the Recreate strategy a ReadWriteOnce volume calls for
+expected:
+  - Treat any move or rollout of this pod as downtime. There is no second replica.
+  - Only place it where its volume can attach. On kind that is the volume's node, on a cloud the volume's zone.
+  - Never delete or recreate the PersistentVolumeClaim. The data lives there.
+  - Size memory from its busiest period. Running out of memory here is an outage.

@@ -1,0 +1,11 @@
+name: recreate-strategy
+summary: Two replicas with the Recreate strategy, so a rollout stops every pod before new ones start.
+kubernetes: "1.19"
+exercises:
+  - the Recreate strategy
+  - the difference between moving one pod and rolling out a change
+  - two replicas with no PodDisruptionBudget
+expected:
+  - A change to the pod template, new requests included, stops both replicas at once. Make it only when that outage is allowed.
+  - Evicting one pod to move it is safe. The Deployment replaces only that pod while the other one serves.
+  - Nothing stops both pods being evicted together, and that is an outage too. Move them one at a time.

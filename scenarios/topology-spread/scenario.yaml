@@ -1,0 +1,12 @@
+name: topology-spread
+summary: Three replicas that must spread evenly across nodes, and prefer to spread across zones.
+kubernetes: "1.26"
+exercises:
+  - a hard spread rule across nodes (DoNotSchedule on kubernetes.io/hostname)
+  - a soft spread rule across zones (ScheduleAnyway on topology.kubernetes.io/zone)
+  - nodeTaintsPolicy Honor, so tainted nodes do not count
+expected:
+  - Check every move against the hard rule before evicting. The nodes left must take the pod without any two of them differing by more than one replica.
+  - A plan step that leaves a replica Pending is a failed plan.
+  - Emptying one worker is allowed. Its replica moves to another worker, leaving two and one, which is within the rule.
+  - The zone rule is soft. It ranks where pods go but never blocks a move.

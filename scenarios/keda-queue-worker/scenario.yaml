@@ -1,0 +1,13 @@
+name: keda-queue-worker
+summary: A queue worker that KEDA scales from zero to six replicas on the length of a Redis list.
+kubernetes: "1.34"
+exercises:
+  - a replica count owned by KEDA, zero included
+  - use that swings from nothing to busy in seconds
+  - a single Redis pod as the queue
+expected:
+  - Leave the worker's replica count to KEDA. Never change spec.replicas, the ScaledObject or the HPA that KEDA made.
+  - Size the worker from its busy periods. Idle minutes and time at zero replicas say nothing about how big a pod must be.
+  - A worker at zero has nothing to measure. That is not a reason to change its requests.
+  - Plan nodes for the burst that comes every two minutes, not for the quiet minute in between.
+requires: [keda]

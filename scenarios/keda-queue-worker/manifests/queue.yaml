@@ -1,0 +1,137 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  namespace: keda-queue-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: queue
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+        - name: redis
+          image: docker.io/library/redis:8.8.3-alpine@sha256:0b2b77d3ea5078274795e3177cdbdada8b96316684a38911d528534ed679b5ec
+          args: ["--save", "", "--appendonly", "no"]
+          ports:
+            - name: redis
+              containerPort: 6379
+          readinessProbe:
+            exec:
+              command: ["redis-cli", "ping"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+  namespace: keda-queue-worker
+spec:
+  selector:
+    app: queue
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: keda-queue-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producer
+  template:
+    metadata:
+      labels:
+        app: producer
+    spec:
+      containers:
+        - name: producer
+          image: docker.io/library/redis:8.8.3-alpine@sha256:0b2b77d3ea5078274795e3177cdbdada8b96316684a38911d528534ed679b5ec
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              trap 'exit 0' TERM
+              until redis-cli -h queue ping >/dev/null 2>&1; do sleep 1; done
+              while true; do
+                redis-cli -h queue rpush jobs $(seq 1 40) >/dev/null
+                sleep 120 & wait $!
+              done
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 32Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+  namespace: keda-queue-worker
+spec:
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        - name: worker
+          image: docker.io/library/redis:8.8.3-alpine@sha256:0b2b77d3ea5078274795e3177cdbdada8b96316684a38911d528534ed679b5ec
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              trap 'exit 0' TERM
+              while true; do
+                job=$(redis-cli -h queue blpop jobs 5) || { sleep 1; continue; }
+                [ -n "$job" ] || continue
+                read -r up _ < /proc/uptime
+                stop=$(( ${up%.*}${up#*.} + 20 ))
+                now=0
+                while [ "$now" -lt "$stop" ]; do
+                  read -r up _ < /proc/uptime
+                  now=${up%.*}${up#*.}
+                done
+                usleep 800000
+              done
+          resources:
+            requests:
+              cpu: 250m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: worker
+  namespace: keda-queue-worker
+spec:
+  scaleTargetRef:
+    name: worker
+  minReplicaCount: 0
+  maxReplicaCount: 6
+  pollingInterval: 10
+  cooldownPeriod: 60
+  triggers:
+    - type: redis
+      metadata:
+        address: queue.keda-queue-worker.svc.cluster.local:6379
+        listName: jobs
+        listLength: "5"

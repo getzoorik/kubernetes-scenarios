@@ -1,0 +1,12 @@
+name: quorum-statefulset
+summary: A three-pod StatefulSet with a volume per pod and a PodDisruptionBudget that allows one pod down.
+kubernetes: "1.21"
+exercises:
+  - stable pod names, each with its own ReadWriteOnce volume
+  - pods that start one at a time, in order
+  - a quorum guarded by a PodDisruptionBudget with maxUnavailable 1
+expected:
+  - Move one pod at a time, and wait until it is Ready again before moving the next.
+  - Each pod comes back with the same name and the same volume. Only place it where that volume can attach.
+  - Never delete the PersistentVolumeClaims (data-quorum-0, data-quorum-1, data-quorum-2) to free a node.
+  - A request change rolls the pods one at a time from quorum-2 down to quorum-0. That is slow by design, not stuck.
