@@ -1,3 +1,7 @@
+<p align="center">
+  <img alt="Zoorik. Reduce cloud cost, autonomously." src=".github/brand/zoorik-reveal-tagline-on-navy-960x540.gif" width="640">
+</p>
+
 # Kubernetes scenarios
 
 Ready-made Kubernetes situations you can start on a local kind cluster in a minute. Each one is a shape we have met in real clusters, and each one says what a cost optimizer must do about it.
@@ -98,3 +102,8 @@ CI runs `scripts/validate.sh` on every pull request and on `main`. It then start
 ## Licence
 
 Apache-2.0, see [LICENSE](LICENSE). Copyright 2026 Zoorik Private Limited.
+
+---
+
+<p align="center"><sub><a href="https://zoorik.com">zoorik.com</a> · <a href="https://zoorik.com/docs">Docs</a> · <a href="https://zoorik.com/security">Security</a> · <a href="https://github.com/getzoorik">Zoorik on GitHub</a></sub></p>
+<p align="center"><sub>The Zoorik, Coral and Amoeba names and logos belong to Zoorik Private Limited.</sub></p>
